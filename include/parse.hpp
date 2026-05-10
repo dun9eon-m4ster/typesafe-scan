@@ -1,21 +1,68 @@
 #pragma once
 
+#include "types.hpp"
+#include <charconv>
 #include <expected>
-#include <string>
 #include <string_view>
+#include <system_error>
 #include <utility>
 #include <vector>
 
-#include "types.hpp"
-
 namespace stdx::details {
 
-// здесь ваш код
+template <typename T, conversion_specifier spec>
+std::expected<T, scan_error> parse_helper(std::string_view string) {
+    if constexpr (!is_compatable_v<T, spec>)
+        return std::unexpected<scan_error>{"type and conversion specifier are not compatable"};
+
+    T converted;
+    auto result = std::from_chars(string.data(), string.data() + string.size(), converted);
+    if (result.ec != std::error_code{})
+        return std::unexpected<scan_error>{"from chars error: " + std::make_error_code(result.ec).message()};
+
+    return converted;
+}
 
 // Функция для парсинга значения с учетом спецификатора формата
 template <typename T>
 std::expected<T, scan_error> parse_value_with_format(std::string_view input, std::string_view fmt) {
-    // здесь ваш код
+    auto specifier = cs_from_string(fmt);
+
+    switch (specifier) {
+    case conversion_specifier::empty: {
+        return parse_helper<T, conversion_specifier::empty>(input);
+    }    
+    case conversion_specifier::d: {
+        return parse_helper<T, conversion_specifier::d>(input);
+    }
+    case conversion_specifier::u: {
+        return parse_helper<T, conversion_specifier::u>(input);
+    }
+    case conversion_specifier::f: {
+        return parse_helper<T, conversion_specifier::f>(input);
+    }
+    case conversion_specifier::unknown:
+        return std::unexpected<scan_error>("unknown specifier");
+    default:
+        return std::unexpected<scan_error>("invalid specifier");
+    }
+
+    return std::unexpected<scan_error>("not handled");
+}
+
+template <typename T>
+    requires(is_string_v<T>)
+std::expected<T, scan_error> parse_value_with_format(std::string_view input, std::string_view fmt) {
+    auto specifier = cs_from_string(fmt);
+    if (specifier != conversion_specifier::s && specifier != conversion_specifier::empty)
+        return std::unexpected<scan_error>("Invalid string specifier");
+
+    if (input.size() < 2)
+        return std::unexpected<scan_error>("Invalid string format");
+    if (input[0] != '\"' || input[input.size() - 1] != '\"')
+        return std::unexpected<scan_error>("Missing quotes in string");
+
+    return T{input.substr(1, input.size() - 2)};
 }
 
 // Функция для проверки корректности входных данных и выделения из обеих строк интересующих данных для парсинга
@@ -70,4 +117,4 @@ parse_sources(std::string_view input, std::string_view format) {
     return std::pair{format_parts, input_parts};
 }
 
-} // namespace stdx::details
+}  // namespace stdx::details
