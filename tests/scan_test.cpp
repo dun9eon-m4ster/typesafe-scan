@@ -114,8 +114,7 @@ TEST(ScanTest, ExpectedResultValues) {
     EXPECT_EQ(std::get<5>(result->values()), std::string_view("string"));
 }
 
-TEST(ScanTest, ConstTypeTest)
-{
+TEST(ScanTest, ConstTypeTest) {
     auto result = stdx::scan<const int>("10", "{}");
     EXPECT_TRUE(result);
     EXPECT_EQ(std::get<0>(result->values()), 10);
