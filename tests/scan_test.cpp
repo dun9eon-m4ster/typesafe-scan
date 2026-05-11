@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include <print>
 #include <string_view>
 #include <tuple>
 #include <type_traits>
@@ -8,16 +7,6 @@
 
 TEST(ScanTest, SimpleTest) {
     auto result = stdx::scan<std::string_view, double, uint>("\"number\" 3.14 1000000", "{s} {f} {d}");
-
-    if (!result.has_value())
-        std::println("Error: {}", result.error().message);
-    else
-        std::apply(
-            [](auto &&...args) {
-                int i = 0;
-                (std::println("parse_result {}: {}", i++, args), ...);
-            },
-            result->values());
     EXPECT_TRUE(result);
 }
 
