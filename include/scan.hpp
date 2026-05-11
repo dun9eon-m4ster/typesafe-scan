@@ -6,6 +6,7 @@
 #include <expected>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -36,9 +37,9 @@ std::expected<void, details::scan_error> parse_into(std::tuple<Ts...> &tuple,
 
 // замените болванку функции scan на рабочую версию
 template <typename... Ts>
-    requires(details::is_supported_v<Ts...>)
-std::expected<details::scan_result<Ts...>, details::scan_error> scan(std::string_view input, std::string_view format) {
-    auto src = details::parse_sources<Ts...>(input, format);
+    requires(details::is_supported_v<std::remove_cv_t<Ts>...>)
+std::expected<details::scan_result<std::remove_cv_t<Ts>...>, details::scan_error> scan(std::string_view input, std::string_view format) {
+    auto src = details::parse_sources<std::remove_cv_t<Ts>...>(input, format);
     if (!src.has_value())
         return std::unexpected<details::scan_error>("parse sources error");
 
@@ -49,7 +50,7 @@ std::expected<details::scan_result<Ts...>, details::scan_error> scan(std::string
     if (size != sizeof...(Ts))
         return std::unexpected<details::scan_error>("params count doesn't match with args count");
 
-    details::scan_result<Ts...> result;
+    details::scan_result<std::remove_cv_t<Ts>...> result;
 
     auto pre_result = parse_into(result.values(), value.first, value.second);
     if (!pre_result)
