@@ -53,7 +53,7 @@ struct scan_error {
 
 template <typename... Ts>
 struct scan_result {
-    std::tuple<Ts...> &values() { return m_values; }
+    std::tuple<Ts...> &values() & { return m_values; }
 
 private:
     std::tuple<Ts...> m_values;
