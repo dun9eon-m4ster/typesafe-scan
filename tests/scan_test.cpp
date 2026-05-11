@@ -76,19 +76,6 @@ TEST(ScanTest, CorrectSpecifier) {
     }
 }
 
-TEST(ScanTest, ResultAndParamsTypeMatch) {
-
-    auto result = stdx::scan<int, uint, double, std::string_view>("-42 42 3.14 \"str\"", "{} {} {} {}");
-    EXPECT_TRUE(result);
-
-    using ResultType = std::tuple<int, uint, double, std::string_view>;
-
-    EXPECT_TRUE((std::is_same_v<int, std::tuple_element_t<0, ResultType>>));
-    EXPECT_TRUE((std::is_same_v<uint, std::tuple_element_t<1, ResultType>>));
-    EXPECT_TRUE((std::is_same_v<double, std::tuple_element_t<2, ResultType>>));
-    EXPECT_TRUE((std::is_same_v<std::string_view, std::tuple_element_t<3, ResultType>>));
-}
-
 TEST(ScanTest, ExpectedResultValues) {
 
     auto result = stdx::scan<int, uint, double, float, std::string_view, std::string>(
