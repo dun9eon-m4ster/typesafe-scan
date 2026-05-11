@@ -43,7 +43,7 @@ std::expected<details::scan_result<std::remove_cv_t<Ts>...>, details::scan_error
                                                                                        std::string_view format) {
     auto src = details::parse_sources<std::remove_cv_t<Ts>...>(input, format);
     if (!src.has_value())
-        return std::unexpected<details::scan_error>("parse sources error");
+        return std::unexpected<details::scan_error>(std::format("parse sources error: {}", src.error().message));
 
     const auto &value = src.value();
     if (value.first.size() != value.second.size())
