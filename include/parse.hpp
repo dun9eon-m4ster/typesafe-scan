@@ -15,8 +15,7 @@ std::expected<T, scan_error> parse_value(std::string_view) {
     return T{};
 }
 
-template <typename T>
-    requires(numeric<T>)
+template <numeric T>
 std::expected<T, scan_error> parse_value(std::string_view input) {
     T converted;
     auto result = std::from_chars(input.data(), input.data() + input.size(), converted);
@@ -26,8 +25,7 @@ std::expected<T, scan_error> parse_value(std::string_view input) {
     return converted;
 }
 
-template <typename T>
-    requires(stringlike<T>)
+template <stringlike T>
 std::expected<T, scan_error> parse_value(std::string_view input) {
     if (input.size() < 2)
         return std::unexpected<scan_error>("Invalid string format");
