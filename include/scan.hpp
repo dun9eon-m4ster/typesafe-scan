@@ -4,6 +4,7 @@
 #include "types.hpp"
 #include <cstddef>
 #include <expected>
+#include <format>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -24,8 +25,8 @@ std::expected<void, details::scan_error> parse_into(std::tuple<Ts...> &tuple,
         auto parsed = details::parse_value_with_format<T>(values[I], formats[I]);
 
         if (!parsed) {
-            auto error_msg = std::string("Error occurred on type number: ") + std::to_string(I + 1) + "  " +
-                             std::string(parsed.error().message);
+            auto error_msg = std::format("{}  {}  {}", std::string("Error occurred on type number: "),
+                                         std::to_string(I + 1), std::string(parsed.error().message));
             return std::unexpected<details::scan_error>(error_msg);
         }
 
