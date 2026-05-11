@@ -38,7 +38,7 @@ std::expected<void, details::scan_error> parse_into(std::tuple<Ts...> &tuple,
 
 // замените болванку функции scan на рабочую версию
 template <typename... Ts>
-    requires(details::is_supported_v<std::remove_cv_t<Ts>...>)
+    requires(details::is_supported<std::remove_cv_t<Ts>...>)
 std::expected<details::scan_result<std::remove_cv_t<Ts>...>, details::scan_error> scan(std::string_view input,
                                                                                        std::string_view format) {
     auto src = details::parse_sources<std::remove_cv_t<Ts>...>(input, format);
