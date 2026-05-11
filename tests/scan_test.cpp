@@ -84,8 +84,8 @@ TEST(ScanTest, ExpectedResultValues) {
 
     EXPECT_EQ(std::get<0>(result->values()), -42);
     EXPECT_EQ(std::get<1>(result->values()), 42);
-    EXPECT_TRUE(std::abs(std::get<2>(result->values()) - 3.14) < 1e+6);
-    EXPECT_TRUE(std::abs(std::get<3>(result->values()) - 9.86) < 1e+6);
+    EXPECT_NEAR(std::get<2>(result->values()),  3.14, 1e+6);
+    EXPECT_NEAR(std::get<3>(result->values()), 9.86, 1e+6);
     EXPECT_EQ(std::get<4>(result->values()), std::string_view("string_view"));
     EXPECT_EQ(std::get<5>(result->values()), std::string_view("string"));
 }
