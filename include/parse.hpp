@@ -1,21 +1,47 @@
 #pragma once
 
+#include "types.hpp"
+#include <charconv>
 #include <expected>
-#include <string>
 #include <string_view>
+#include <system_error>
 #include <utility>
 #include <vector>
 
-#include "types.hpp"
-
 namespace stdx::details {
 
-// здесь ваш код
+template <typename T>
+std::expected<T, scan_error> parse_value(std::string_view) {
+    return T{};
+}
+
+template <numeric T>
+std::expected<T, scan_error> parse_value(std::string_view input) {
+    T converted;
+    auto result = std::from_chars(input.data(), input.data() + input.size(), converted);
+    if (result.ec != std::error_code{})
+        return std::unexpected<scan_error>{"from chars error: " + std::make_error_code(result.ec).message()};
+
+    return converted;
+}
+
+template <stringlike T>
+std::expected<T, scan_error> parse_value(std::string_view input) {
+    if (input.size() < 2)
+        return std::unexpected<scan_error>("Invalid string format");
+    if (input[0] != '\"' || input[input.size() - 1] != '\"')
+        return std::unexpected<scan_error>("Missing quotes in string");
+
+    return T{input.substr(1, input.size() - 2)};
+}
 
 // Функция для парсинга значения с учетом спецификатора формата
 template <typename T>
 std::expected<T, scan_error> parse_value_with_format(std::string_view input, std::string_view fmt) {
-    // здесь ваш код
+    if (!is_compatible<T>(fmt))
+        return std::unexpected<scan_error>("type and conversion specifier are not compatable");
+
+    return parse_value<T>(input);
 }
 
 // Функция для проверки корректности входных данных и выделения из обеих строк интересующих данных для парсинга
@@ -70,4 +96,4 @@ parse_sources(std::string_view input, std::string_view format) {
     return std::pair{format_parts, input_parts};
 }
 
-} // namespace stdx::details
+}  // namespace stdx::details
